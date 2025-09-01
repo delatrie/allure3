@@ -57,6 +57,7 @@ export const isXcResultBundle = async (directory: string) => {
 export const checkUniformTypeIdentifier = async (itemPath: string, uti: string) => {
   const mdlsArgs = ["-raw", "-attr", "kMDItemContentTypeTree", itemPath];
   let contentTypeTreeAvailable = false;
+  const utis: string[] = [];
 
   try {
     for await (const line of invokeStdoutCliTool("mdls", mdlsArgs, { encoding: "utf-8" })) {
@@ -64,7 +65,9 @@ export const checkUniformTypeIdentifier = async (itemPath: string, uti: string) 
       if (match) {
         contentTypeTreeAvailable = true;
         const [, matchedUti] = match;
+        utis.push(matchedUti);
         if (matchedUti === uti) {
+          console.log(`mdls found ${uti} at ${itemPath}`);
           return true;
         }
       }
@@ -73,11 +76,13 @@ export const checkUniformTypeIdentifier = async (itemPath: string, uti: string) 
     // If mdls fails for some reason, resort to heuristics.
     // We don't show messages here as there might be circumstances where a well-formed results directory (not a bundle)
     // is parsed on a machine without Spotlight.
+    console.log("mdls failed");
     return undefined;
   }
 
   // Not a single match means the content type tree can't be accessed. That may happen on Mac OS machines if
   // the path is not indexed by Spotlight, or the indexing is disabled. We resort to heuristics in such a case.
+  console.log(`mdls didn't found ${uti} at ${itemPath} in [${utis.join(", ")}]`);
   return contentTypeTreeAvailable ? false : undefined;
 };
 
