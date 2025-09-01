@@ -22,6 +22,7 @@ export const readXcResultBundle = async (visitor: ResultsVisitor, directory: str
     }
 
     const xcResultToolVersion = await maybeGetXcResultToolVersion();
+    console.log(`xcresulttool version: ${xcResultToolVersion}`);
 
     if (xcResultToolVersion) {
       return await parseBundleWithXcResultTool(visitor, directory, xcResultToolVersion);
@@ -49,8 +50,10 @@ const parseBundleWithXcResultTool = async (
 ) => {
   try {
     if (isXcode16OrNewer(xcResultToolVersion)) {
+      console.log("Xcode 16+");
       await parseWithXcode16OrNewer(visitor, xcResultPath, xcResultToolVersion);
     } else {
+      console.log("Xcode 15");
       await parseWithXcode15OrOlder(visitor, xcResultPath);
     }
     return true;
@@ -102,8 +105,10 @@ const parseWithXcode16OrNewer = async (visitor: ResultsVisitor, xcResultPath: st
 const tryApi = async (visitor: ResultsVisitor, originalFileName: string, apiParser: XcresultParser) => {
   for await (const x of apiParser.parse()) {
     if ("readContent" in x) {
+      console.log(`Got attachment: ${x.name}`);
       await visitor.visitAttachmentFile(x, { readerId });
     } else {
+      console.log(`Got test result: ${x.fullName}`);
       visitor.visitTestResult(x, { readerId, metadata: { originalFileName } });
     }
   }
