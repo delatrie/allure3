@@ -20,11 +20,14 @@ jobs:
         cache: 'yarn'
     - name: Install dependencies
       run: yarn install --immutable --immutable-cache --check-cache
+    - name: Install playwright for static server
+      run: yarn workspace @allurereport/static-server playwright install chromium
+    - name: Install playwright for e2e
+      run: yarn workspace @allurereport/e2e playwright install chromium firefox webkit
+    - name: Install playwright dependencies for e2e
+      run: yarn workspace @allurereport/e2e playwright install-deps
     - name: Build project
       run: |
-        yarn workspace @allurereport/core-api run build
-        yarn workspace @allurereport/plugin-api run build
-        yarn workspace @allurereport/reader-api run build
-        yarn workspace @allurereport/reader run build
+        yarn build
     - name: Test Project
-      run: yarn workspace @allurereport/reader test
+      run: yarn test
