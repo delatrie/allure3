@@ -44,6 +44,7 @@ export const isXcResultBundle = async (directory: string) => {
   const hasXcResultUti = IS_MAC
     ? await checkUniformTypeIdentifier(directory, "com.apple.xcode.resultbundle")
     : undefined;
+  console.log(`Strict check: ${hasXcResultUti}`);
   return hasXcResultUti ?? (await isMostProbablyXcResultBundle(directory));
 };
 
@@ -86,8 +87,17 @@ export const checkUniformTypeIdentifier = async (itemPath: string, uti: string) 
   return contentTypeTreeAvailable ? false : undefined;
 };
 
-export const isMostProbablyXcResultBundle = async (directory: string) =>
-  isDefined(await findBundleInfoFile(directory)) || followsXcResultNaming(directory);
+export const isMostProbablyXcResultBundle = async (directory: string) => {
+  if (isDefined(await findBundleInfoFile(directory))) {
+    console.log(`heuristic check for ${directory}: has Info.plist`);
+    return true;
+  }
+  if (followsXcResultNaming(directory)) {
+    console.log(`heuristic check for ${directory}: has follows the naming convention`);
+    return true;
+  }
+  return false;
+};
 
 export const followsXcResultNaming = (directory: string) => directory.endsWith(".xcresult");
 
