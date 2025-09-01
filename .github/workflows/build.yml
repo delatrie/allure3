@@ -21,6 +21,10 @@ jobs:
     - name: Install dependencies
       run: yarn install --immutable --immutable-cache --check-cache
     - name: Build project
-      run: yarn build
+      run: |
+        yarn workspace @allurereport/core-api run build
+        yarn workspace @allurereport/plugin-api run build
+        yarn workspace @allurereport/reader-api run build
+        yarn workspace @allurereport/reader run build
     - name: Test Project
       run: yarn workspace @allurereport/reader test

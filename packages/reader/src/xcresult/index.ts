@@ -105,7 +105,7 @@ const parseWithXcode16OrNewer = async (visitor: ResultsVisitor, xcResultPath: st
 const tryApi = async (visitor: ResultsVisitor, originalFileName: string, apiParser: XcresultParser) => {
   for await (const x of apiParser.parse()) {
     if ("readContent" in x) {
-      console.log(`Got attachment: ${x.name}`);
+      console.log(`Got attachment: ${x.getOriginalFileName()}`);
       await visitor.visitAttachmentFile(x, { readerId });
     } else {
       console.log(`Got test result: ${x.fullName}`);
